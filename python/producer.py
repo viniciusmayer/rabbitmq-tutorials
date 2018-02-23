@@ -11,7 +11,6 @@ class Producer(object):
 
     def on_response(self, ch, method, props, body):
         r = body.decode('utf-8')
-        print('Producer IN: {0}'.format(r))
         if self.correlation_id == props.correlation_id:
             if r.startswith('a_') > 0:
                 self.response_a = int(r.replace('a_',''))
@@ -33,9 +32,9 @@ class Producer(object):
                                    body=str(n))
         while self.response_a is None or self.response_b is None:
             self.connection.process_data_events()
-        return 'OUT: {0}, IN (a): {1}, IN (b): {2}'.format(n, self.response_a, self.response_b)
+        return 'Producer OUT: {0}, IN (a): {1}, IN (b): {2}'.format(n, self.response_a, self.response_b)
 
 p = Producer()
-n = sys.argv[1] if len(sys.argv) > 1 else 2
+n = sys.argv[1] if len(sys.argv) > 1 else 3
 r = p.call(n)
 print(r)

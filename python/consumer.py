@@ -17,15 +17,16 @@ def on_request(ch, method, props, body):
     r = 'b_{0}'.format(n * x)
     if _queue.startswith(_queuea) > 0:
         r = 'a_{0}'.format(n + x)
-        time.sleep(10)
+        time.sleep(5)
     ch.basic_publish(exchange='',
                      routing_key=props.reply_to,
                      properties=pika.BasicProperties(correlation_id = props.correlation_id),
                      body=str(r))
     print('Consumer OUT: {0}'.format(r))
+    print()
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
-channel.basic_qos(prefetch_count=1)
+channel.basic_qos(prefetch_count=1) # In order to spread the load equally over multiple servers
 channel.basic_consume(on_request, queue=_queue)
 
 print('Consumer WAIT ({0})'.format(_queue))
