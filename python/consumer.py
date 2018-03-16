@@ -2,12 +2,14 @@
 import pika, sys, time
 from random import randint
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+credentials = pika.PlainCredentials('dsv', 'dsv')
+connection = pika.BlockingConnection(pika.ConnectionParameters('as1397.lojasrenner.com.br', 5672, '/', credentials))
 channel = connection.channel()
 _exchange='exchange-a'
 _queuea = 'queue-a'
 channel.exchange_declare(exchange=_exchange, exchange_type='fanout', durable=True)
-_queue = sys.argv[1] if len(sys.argv) > 1 else _queuea 
+_queue = sys.argv[1] if len(sys.argv) > 1 else _queuea
+channel.queue_declare(queue=_queue, durable=True) 
 channel.queue_bind(exchange=_exchange, queue=_queue)
 
 def on_request(ch, method, props, body):

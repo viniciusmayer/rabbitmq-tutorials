@@ -3,10 +3,13 @@ import pika, uuid, sys
 
 class Producer(object):
     def __init__(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        credentials = pika.PlainCredentials('dsv', 'dsv')
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters('as1397.lojasrenner.com.br', 5672, '/', credentials))
         self.channel = self.connection.channel()
         self.reply_to = 'queue-c'
         self.exchange='exchange-a'
+        self.channel.queue_declare(queue=self.reply_to, durable=True)
+        self.channel.queue_bind(exchange=self.exchange, queue=self.reply_to)
         self.channel.basic_consume(self.on_response, no_ack=True, queue=self.reply_to)
 
     def on_response(self, ch, method, props, body):
